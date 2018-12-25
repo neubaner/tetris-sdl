@@ -5,7 +5,7 @@
 #include <time.h>
 #include "board.c"
 
-void doTick(Piece* curPiece, char* board){
+void doTick(Piece* curPiece, int* board){
   int destroyed = tick(curPiece, board);
   if(destroyed){
     resetPiece(curPiece);
@@ -38,14 +38,7 @@ int main(int argc, char** args){
   Piece piece;
   resetPiece(&piece);
 
-  Piece piece2;
-  piece2.x = 5;
-  piece2.y= 0;
-  memcpy(piece2.piece_array, PIECE_J, 4*4*sizeof(char));
-  rotatePieceRight(&piece2);
-
-  char board[BOARD_HEIGHT*BOARD_WIDTH] = {0};
-  Piece* curPiece = &piece;
+  int board[BOARD_HEIGHT*BOARD_WIDTH] = {0};
 
   uint64_t now = SDL_GetPerformanceCounter();
   uint64_t last = 0;
@@ -66,13 +59,13 @@ int main(int argc, char** args){
           break;
         case SDL_KEYDOWN:
           if(e.key.keysym.sym == SDLK_LEFT){
-            movePieceLeft(curPiece, board);
+            movePieceLeft(&piece, board);
           }else if(e.key.keysym.sym == SDLK_RIGHT){
-            movePieceRight(curPiece, board);
+            movePieceRight(&piece, board);
           }else if(e.key.keysym.sym == SDLK_r){
-            rotatePieceRight(&piece);
+            rotatePieceRight(&piece, board);
           }else if(e.key.keysym.sym == SDLK_DOWN){
-           doTick(curPiece, board); 
+           doTick(&piece, board); 
            tickTimer = 0;
           }
           break;
@@ -82,12 +75,12 @@ int main(int argc, char** args){
     SDL_RenderClear(renderer);
 
     if(tickTimer >= 1000){
-      doTick(curPiece, board);
+      doTick(&piece, board);
       tickTimer = tickTimer - 1000;
     }
 
-    if(curPiece){
-      renderPiece(renderer, curPiece);
+    if(&piece){
+      renderPiece(renderer, &piece);
     }
 
     renderBoard(renderer, board);
@@ -102,4 +95,3 @@ int main(int argc, char** args){
   
   return 0;
 }
-
